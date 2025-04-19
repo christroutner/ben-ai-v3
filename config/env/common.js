@@ -99,7 +99,8 @@ export default {
   debugLevel: process.env.DEBUG_LEVEL ? parseInt(process.env.DEBUG_LEVEL) : 2,
 
   // Enable/Disable the IPFS node at startup. Enabled by default.
-  useIpfs: process.env.DISABLE_IPFS ? false : true,
+  // useIpfs: process.env.DISABLE_IPFS ? false : true,
+  useIpfs: false,
 
   isCircuitRelay: process.env.ENABLE_CIRCUIT_RELAY ? true : false,
   // SSL domain used for websocket connection via browsers.
