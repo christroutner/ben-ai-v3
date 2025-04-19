@@ -1,7 +1,7 @@
 {
-  "name": "ipfs-service-provider",
-  "version": "5.0.0",
-  "description": "A Koa-based combination of a REST API and IPFS JSON RPC. Boilerplate for starting new projects.",
+  "name": "ben-ai-v3",
+  "version": "1.0.0",
+  "description": "Tech-support chat bot app, named 'Ben'. Uses Telegram, Ollama, web search, and RAG DB.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -19,10 +19,10 @@
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "license": "MIT",
   "apidoc": {
-    "title": "ipfs-service-provider",
+    "title": "ben-ai-v3",
     "url": "localhost:5000"
   },
-  "repository": "Permissionless-Software-Foundation/ipfs-service-provider",
+  "repository": "christroutner/ben-ai-v3",
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "14.1.0",
     "@chainsafe/libp2p-noise": "16.0.1",
