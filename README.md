@@ -8,7 +8,7 @@ This is my third major attempt at trying to create a tech-support chat bot. The 
 
 The RAG database will be loaded with information about Bitcoin, JavaScript, and all the code bases I've created (like the [Cash Stack](https://cashstack.info)). People should be able to ask it for detailed answers and code examples about all that code.
 
-This repository is forked from [ipfs-service-provider](https://github.com/Permissionless-Software-Foundation/ipfs-service-provider). It creates a REST API server that also functions as Telegram bot. It also provides a central piece of software upon which the other features can be built.
+This repository is forked from [ipfs-service-provider](https://github.com/Permissionless-Software-Foundation/ipfs-service-provider). It creates a REST API server that also functions as a Telegram bot. It also provides a central piece of software upon which the other features can be built.
 
 ## Installation
 
@@ -16,7 +16,7 @@ In order to run your own version of Ben AI, you'll need to run code in several c
 
 ### Ollama
 
-The LLM powering Ben AI is expected to be running locally using Ollama. So you'll need Ollama running, with the API endpoint exposed, and LLM models downloaded. I am using a GeForce 3060 with 12GB of VRAM. The following LLM models are currently targeted:
+The LLM powering Ben AI is expected to be running locally using [Ollama](https://ollama.com/). So you'll need Ollama running, with the API endpoint exposed, and LLM models downloaded. I am using a GeForce 3060 with 12GB of VRAM. The following LLM models are currently targeted:
 
 - Chat: llama3.1:8b-instruct-q4_K_M
 - RAG Semantic text embedding: nomic-embed-text
@@ -38,5 +38,5 @@ Edit the `config/env/common.js` file to customize URLs and other settings.
 
 
 ## License
-MIT
+[MIT](./LICENSE.md)
 
