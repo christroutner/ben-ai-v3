@@ -9,11 +9,13 @@ import axios from 'axios'
 // Local libraries
 import config from '../../config/index.js'
 import OllamaAdapter from './ollama.js'
+import ParseJsonAdapter from './parse-json-from-text.js'
 
 class RAGAdapter {
   constructor () {
     // Encapsulate dependencies
     this.ollama = new OllamaAdapter()
+    this.parseJson = new ParseJsonAdapter()
 
     // Bind 'this' object to all methods.
     this.queryRag = this.queryRag.bind(this)
@@ -36,37 +38,61 @@ class RAGAdapter {
 
     if (documents.length > 0) {
       knowledge = `
-      # Knowledge Base
-      ${documents.length} documents found in your RAG knowledge base. These may or may not
-      be relevant to understanding the user's query.
+# Knowledge Base
+${documents.length} documents found in your RAG knowledge base. These may or may not
+be relevant to understanding the user's query.
 
       `
 
       for (let i = 0; i < documents.length; i++) {
-        console.log(`Document ${i + 1}:`, documents[i])
+        const document = documents[i]
+        console.log(`Document ${i + 1}:`, document)
+
+        knowledge += `
+
+## Document ${i + 1} of ${documents.length}
+${document}
+
+`
       }
     }
     console.log('Knowledge:', knowledge)
 
     // return response.data
-    return ''
+    return knowledge
   }
 
   // Reformat user input into an optimized semantic
   async optimizeQuery (query) {
     try {
       const optimizationPrompt = `
-      You are a helpful assistant that re-formats user input into an optimized semantic query.
-      The query you produce will be used to search a RAG knowledge base for relevant information,
-      so it should be optimized for semantic search of the main topics in the users input
+You are a helpful assistant that re-formats user input into an optimized semantic query.
+The query you produce will be used to search a RAG knowledge base for relevant information,
+so it should be optimized for semantic search of the main topics in the users input
 
-      The user input is: ${query}
+The user input is: 
 
-      The optimized semantic query is:
-      `
+${query}
 
-      const optimizedQuery = await this.ollama.promptLlm(optimizationPrompt)
-      return optimizedQuery
+Response format should be formatted in a valid JSON block like this:
+\`\`\`json
+{
+  "query": "<string>"
+}
+\`\`\`
+Your response should include the valid JSON block and nothing else.
+`
+
+      const llmResponse = await this.ollama.promptLlm(optimizationPrompt)
+
+      const optimizedQuery = this.parseJson.parseJSONObjectFromText(llmResponse)
+      console.log('Optimized query:', optimizedQuery)
+
+      if (!optimizedQuery) {
+        return ''
+      }
+
+      return optimizedQuery.query
     } catch (err) {
       console.error('Error in rag.js/optimizeQuery')
       throw err

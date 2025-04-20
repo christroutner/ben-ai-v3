@@ -1,10 +1,10 @@
 
 const jsonBlockPattern = /```json\n([\s\S]*?)\n```/
 
-class ParseJsonFromTextAdapter {
+class ParseJsonAdapter {
   constructor () {
     // Bind 'this' object to all methods.
-    this.parseJsonFromText = this.parseJsonFromText.bind(this)
+    this.parseJSONObjectFromText = this.parseJSONObjectFromText.bind(this)
     this.normalizeJsonString = this.normalizeJsonString.bind(this)
   }
 
@@ -78,4 +78,4 @@ class ParseJsonFromTextAdapter {
   };
 }
 
-export default ParseJsonFromTextAdapter
+export default ParseJsonAdapter
