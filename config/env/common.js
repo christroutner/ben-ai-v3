@@ -151,7 +151,17 @@ export default {
 
     // v2 Circuit Relay server (FullStack.cash)
     // '/ip4/78.46.129.7/tcp/4001/p2p/12D3KooWFQ11GQ5NubsJGhYZ4X3wrAGimLevxfm6HPExCrMYhpSL'
-  ]
+  ],
 
   // END IPFS CONFIGURATION
+
+  // Telegram Bot Configuration
+  telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ? process.env.TELEGRAM_BOT_TOKEN : '',
+
+  // Ollama Configuration
+  ollamaUrl: process.env.OLLAMA_URL ? process.env.OLLAMA_URL : 'http://192.168.2.117:11434',
+  ollamaModel: process.env.OLLAMA_MODEL ? process.env.OLLAMA_MODEL : 'llama3.1:8b-instruct-q4_K_M',
+
+  // RAG Configuration
+  ragUrl: process.env.RAG_URL ? process.env.RAG_URL : 'http://localhost:3000'
 }
