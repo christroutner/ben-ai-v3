@@ -18,6 +18,7 @@ import JSONFiles from './json-files.js'
 import FullStackJWT from './fullstack-jwt.js'
 import config from '../../config/index.js'
 import Wallet from './wallet.adapter.js'
+import OllamaAdapter from './ollama.js'
 
 class Adapters {
   constructor (localConfig = {}) {
@@ -31,6 +32,7 @@ class Adapters {
     this.bchjs = new BCHJS()
     this.config = config
     this.wallet = new Wallet(localConfig)
+    this.ollama = new OllamaAdapter()
 
     // Get a valid JWT API key and instance bch-js.
     this.fullStackJwt = new FullStackJWT(config)
