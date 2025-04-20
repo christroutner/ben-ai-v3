@@ -56,10 +56,21 @@ class TelegramController {
       console.log('RAG response:', ragResponse)
 
       const completePrompt = `
-You are a helpful tech-support agent. You are given a question and a list of documents.
-Your job is to answer the question using the documents.
+# Overview
+You are a helpful tech-support agent. Your job is to answer technical questions.
+You will be given a list of documents from your RAG knowledge database to help
+answer the question, but those documents may not be relevant to the question.
+Use your internal knowledge to answer the question, and only use the documents
+when they seem relevant to the question being asked.
 
 Question: ${parsedMsg}
+
+## Writing Guidelines
+- If the question is not related to technology, or if the input is not an explicit
+or implied question, then you can ignore the prompt and not respond.
+
+- If you do not know the answer, then respond that you do not know. Do not make up
+an answer or hallucinate an answer.
 
 ${ragResponse}
 `

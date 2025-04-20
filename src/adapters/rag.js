@@ -43,7 +43,7 @@ class RAGAdapter {
 
     if (documents.length > 0) {
       knowledge = `
-# Knowledge Base
+## Knowledge Base
 ${documents.length} documents found in your RAG knowledge base. These may or may not
 be relevant to understanding the user's query.
 
@@ -55,7 +55,7 @@ be relevant to understanding the user's query.
 
         knowledge += `
 
-## Document ${i + 1} of ${documents.length}
+### Document ${i + 1} of ${documents.length}
 ${document}
 
 `
