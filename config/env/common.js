@@ -160,5 +160,8 @@ export default {
 
   // Ollama Configuration
   ollamaUrl: process.env.OLLAMA_URL ? process.env.OLLAMA_URL : 'http://192.168.2.117:11434',
-  ollamaModel: process.env.OLLAMA_MODEL ? process.env.OLLAMA_MODEL : 'llama3.1:8b-instruct-q4_K_M'
+  ollamaModel: process.env.OLLAMA_MODEL ? process.env.OLLAMA_MODEL : 'llama3.1:8b-instruct-q4_K_M',
+
+  // RAG Configuration
+  ragUrl: process.env.RAG_URL ? process.env.RAG_URL : 'http://localhost:3000'
 }

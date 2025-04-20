@@ -42,6 +42,9 @@ class TelegramController {
     const rawMsg = msg.text
     const parsedMsg = rawMsg.slice(3) // Remove the /q prefix.
 
+    const ragResponse = await this.adapters.rag.queryRag(parsedMsg)
+    console.log('RAG response:', ragResponse)
+
     const response = await this.adapters.ollama.promptLlm(parsedMsg)
 
     this.bot.sendMessage(msg.chat.id, response)
