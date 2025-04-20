@@ -24,11 +24,16 @@ class RAGAdapter {
 
   async queryRag (query) {
     // Reformat user input into an optimized semantic
-    const optimizedQuery = await this.optimizeQuery(query)
-    console.log('Optimized query:', optimizedQuery)
+    let optimizedQuery = await this.optimizeQuery(query)
+    console.log('queryRage() Optimized query:', optimizedQuery)
+
+    // If the query can not be optimized, then use the original query.
+    if (!optimizedQuery) {
+      optimizedQuery = query
+    }
 
     const response = await axios.post(`${config.ragUrl}/query`, {
-      query
+      query: optimizedQuery
     })
     console.log('RAG response:', response.data)
 
@@ -85,8 +90,14 @@ Your response should include the valid JSON block and nothing else.
 
       const llmResponse = await this.ollama.promptLlm(optimizationPrompt)
 
-      const optimizedQuery = this.parseJson.parseJSONObjectFromText(llmResponse)
-      console.log('Optimized query:', optimizedQuery)
+      let optimizedQuery = null
+      let tryCnt = 0
+
+      while (!optimizedQuery && tryCnt < 3) {
+        optimizedQuery = this.parseJson.parseJSONObjectFromText(llmResponse)
+        console.log('optimizeQuery() Optimized query:', optimizedQuery)
+        tryCnt++
+      }
 
       if (!optimizedQuery) {
         return ''
