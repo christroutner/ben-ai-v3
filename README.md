@@ -25,6 +25,10 @@ The LLM powering Ben AI is expected to be running locally using [Ollama](https:/
 
 The code for the RAG database is in the [chroma-rag repository](https://github.com/christroutner/chroma-rag). See the README in that repository for how to install and run the Docker container.
 
+### RAG Data
+
+The RAG database is populated with a collection of books, code, notes, and other data. The source of this data is stored in the [ben-training-data repository](https://github.com/christroutner/ben-training-data). The code in this repository is only run once, to populate the database during a new installation.
+
 ### ben-ai-v3
 
 To install and run this repository:
