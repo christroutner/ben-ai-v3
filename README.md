@@ -10,6 +10,33 @@ The RAG database will be loaded with information about Bitcoin, JavaScript, and 
 
 This repository is forked from [ipfs-service-provider](https://github.com/Permissionless-Software-Foundation/ipfs-service-provider). It creates a REST API server that also functions as Telegram bot. It also provides a central piece of software upon which the other features can be built.
 
+## Installation
+
+In order to run your own version of Ben AI, you'll need to run code in several code repositories. The targeted operating system is Ubuntu v20, with node.js v20, Docker, and Docker Compose all installed.
+
+### Ollama
+
+The LLM powering Ben AI is expected to be running locally using Ollama. So you'll need Ollama running, with the API endpoint exposed, and LLM models downloaded. I am using a GeForce 3060 with 12GB of VRAM. The following LLM models are currently targeted:
+
+- Chat: llama3.1:8b-instruct-q4_K_M
+- RAG Semantic text embedding: nomic-embed-text
+
+### Chroma-RAG
+
+The code for the RAG database is in the [chroma-rag repository](https://github.com/christroutner/chroma-rag). See the README in that repository for how to install and run the Docker container.
+
+### ben-ai-v3
+
+To install and run this repository:
+
+- `git clone https://github.com/christroutner/ben-ai-v3`
+- `cd ben-ai-v3`
+- `npm install`
+- `npm start`
+
+Edit the `config/env/common.js` file to customize URLs and other settings.
+
+
 ## License
 MIT
 
