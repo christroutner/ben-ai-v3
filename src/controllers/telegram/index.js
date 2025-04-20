@@ -31,7 +31,15 @@ class TelegramController {
     this.processMsg = this.processMsg.bind(this)
 
     // Initialize the bot.
-    this.bot = new TelegramBot(config.telegramBotToken, { polling: true })
+    this.bot = new TelegramBot(config.telegramBotToken, {
+      polling: true,
+      request: {
+        agentOptions: {
+          keepAlive: true,
+          family: 4
+        }
+      }
+    })
     this.bot.onText(/\/q/, this.processMsg)
   }
 
@@ -62,9 +70,15 @@ ${ragResponse}
 
       console.log('Original Telegram msg: ', msg)
 
-      const chatId = msg.chat.id
-      console.log('chatId: ', chatId)
-      this.bot.sendMessage(chatId, response)
+      // const chatId = msg.chat.id
+      // console.log('chatId: ', chatId)
+      // this.bot.sendMessage(chatId, response)
+
+      const opts = {
+        reply_to_message_id: msg.message_id
+      }
+
+      this.bot.sendMessage(msg.chat.id, response, opts)
     } catch (error) {
       console.error('Error in processMsg:', error)
       this.bot.sendMessage(msg.chat.id, 'Sorry, there was an error processing your request. Please try again later.')
