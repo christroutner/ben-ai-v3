@@ -39,13 +39,17 @@ class RAGAdapter {
 
     let knowledge = ''
 
-    const documents = response.data.results.documents
+    const documents = response.data.results
 
     if (documents.length > 0) {
       knowledge = `
 ## Knowledge Base
 ${documents.length} documents found in your RAG knowledge base. These may or may not
 be relevant to understanding the user's query.
+
+In your response, do not reference the documents. The user can not see the documents,
+so it sounds awkward when you reference them. Just use the information in formulating
+your answer.
 
       `
 
