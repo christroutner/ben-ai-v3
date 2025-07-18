@@ -25,12 +25,14 @@ class RAGAdapter {
   async queryRag (query) {
     // Reformat user input into an optimized semantic
     let optimizedQuery = await this.optimizeQuery(query)
-    console.log('queryRage() Optimized query:', optimizedQuery)
 
     // If the query can not be optimized, then use the original query.
     if (!optimizedQuery) {
       optimizedQuery = query
     }
+
+    console.log('queryRag() Optimized query:', optimizedQuery)
+    console.log(' ')
 
     const response = await axios.post(`${config.ragUrl}/query`, {
       query: optimizedQuery
@@ -55,7 +57,7 @@ your answer.
 
       for (let i = 0; i < documents.length; i++) {
         const document = documents[i]
-        console.log(`Document ${i + 1}:`, document)
+        // console.log(`Document ${i + 1}:`, document)
 
         knowledge += `
 \n
@@ -65,7 +67,7 @@ ${document}
 `
       }
     }
-    console.log('Knowledge:', knowledge)
+    // console.log('Knowledge:', knowledge)
 
     // return response.data
     return knowledge
@@ -99,7 +101,8 @@ Your response should include the valid JSON block and nothing else.
 
       while (!optimizedQuery && tryCnt < 3) {
         optimizedQuery = this.parseJson.parseJSONObjectFromText(llmResponse)
-        console.log('optimizeQuery() Optimized query:', optimizedQuery)
+        // console.log('optimizeQuery() Optimized query:', optimizedQuery)
+        // console.log(' ')
         tryCnt++
       }
 
