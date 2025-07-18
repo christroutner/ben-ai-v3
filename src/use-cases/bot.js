@@ -18,6 +18,7 @@ class BotUseCases {
     }
 
     // Bind 'this' object to all subfunctions
+    this.handleIncomingPrompt = this.handleIncomingPrompt.bind(this)
 
     // State
   }

@@ -35,7 +35,7 @@ class RAGAdapter {
     const response = await axios.post(`${config.ragUrl}/query`, {
       query: optimizedQuery
     })
-    console.log('RAG response:', response.data)
+    // console.log('RAG response:', response.data)
 
     let knowledge = ''
 
@@ -58,7 +58,7 @@ your answer.
         console.log(`Document ${i + 1}:`, document)
 
         knowledge += `
-
+\n
 ### Document ${i + 1} of ${documents.length}
 ${document}
 
