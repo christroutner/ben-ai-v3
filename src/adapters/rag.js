@@ -60,8 +60,8 @@ your answer.
         // console.log(`Document ${i + 1}:`, document)
 
         knowledge += `
-\n
-### Document ${i + 1} of ${documents.length}
+\n\n
+### Document ${i + 1} of ${documents.length}\n
 ${document}
 
 `

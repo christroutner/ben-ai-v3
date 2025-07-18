@@ -31,7 +31,7 @@ class BotUseCases {
       const { prompt } = inObj
 
       const ragResponse = await this.adapters.rag.queryRag(prompt)
-      console.log('RAG response:', ragResponse)
+      // console.log('RAG response:', ragResponse)
 
       const completePrompt = `
 # Overview
