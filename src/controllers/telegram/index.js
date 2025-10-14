@@ -51,6 +51,7 @@ class TelegramController {
       const rawMsg = msg.text
       const parsedMsg = rawMsg.slice(3) // Remove the /q prefix.
       console.log('parsedMsg: ', parsedMsg)
+      console.log(' ')
 
       const response = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
 
@@ -61,7 +62,8 @@ class TelegramController {
       // this.bot.sendMessage(chatId, response)
 
       const opts = {
-        reply_to_message_id: msg.message_id
+        reply_to_message_id: msg.message_id,
+        parse_mode: 'Markdown'
       }
 
       this.bot.sendMessage(msg.chat.id, response, opts)
