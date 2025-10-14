@@ -20,6 +20,7 @@ import config from '../../config/index.js'
 import Wallet from './wallet.adapter.js'
 import OllamaAdapter from './ollama.js'
 import RAGAdapter from './rag.js'
+import LightRAGAdapter from './lightrag.js'
 
 class Adapters {
   constructor (localConfig = {}) {
@@ -35,6 +36,7 @@ class Adapters {
     this.wallet = new Wallet(localConfig)
     this.ollama = new OllamaAdapter()
     this.rag = new RAGAdapter()
+    this.lightrag = new LightRAGAdapter()
 
     // Get a valid JWT API key and instance bch-js.
     this.fullStackJwt = new FullStackJWT(config)

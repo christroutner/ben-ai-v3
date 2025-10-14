@@ -126,6 +126,9 @@ class Server {
       console.log(`IPFS WebRTC port: ${this.config.ipfsWebRtcPort}`)
       console.log(`Connection preference: ${this.config.connectPref}\n`)
 
+      // Add global error handlers for uncaught exceptions
+      this.setupGlobalErrorHandlers()
+
       return app
     } catch (err) {
       console.error('Could not start server. Error: ', err)
@@ -136,6 +139,36 @@ class Server {
       await this.sleep(5000)
       this.process.exit(1)
     }
+  }
+
+  setupGlobalErrorHandlers () {
+    // Handle unhandled promise rejections
+    this.process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+      wlogger.error('Unhandled Rejection', { reason, promise })
+
+      // Log Telegram-specific errors with more detail
+      if (reason && reason.code === 'ETELEGRAM') {
+        console.error('Telegram API Error Details:', {
+          message: reason.message,
+          response: reason.response ? reason.response.body : 'No response body'
+        })
+      }
+    })
+
+    // Handle uncaught exceptions
+    this.process.on('uncaughtException', (error) => {
+      console.error('Uncaught Exception:', error)
+      wlogger.error('Uncaught Exception', { error })
+
+      // Log Telegram-specific errors
+      if (error && error.code === 'ETELEGRAM') {
+        console.error('Telegram API Error Details:', {
+          message: error.message,
+          response: error.response ? error.response.body : 'No response body'
+        })
+      }
+    })
   }
 
   sleep (ms) {

@@ -63,6 +63,21 @@ ${ragResponse}
       throw err
     }
   }
+
+  async handleIncomingPrompt2 (inObj = {}) {
+    try {
+      const { prompt } = inObj
+      console.log('handleIncomingPrompt2() prompt: ', prompt)
+
+      const ragResponse = await this.adapters.lightrag.queryLightRAG(prompt)
+      console.log('ragResponse: ', ragResponse)
+
+      return ragResponse
+    } catch (err) {
+      console.error('Error in use-cases/bot.js/handleIncomingPrompt2()')
+      throw err
+    }
+  }
 }
 
 export default BotUseCases
