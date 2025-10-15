@@ -2,7 +2,7 @@
 
 This is my third major attempt at trying to create a tech-support chat bot. The goal is to create a system with the following subcomponents:
 - Telegram interface for chat (this repository)
-- RAG Database with semantic text search ([chroma-rag](https://github.com/christroutner/chroma-rag))
+- RAG Database with semantic text search ([LightRag]](https://github.com/christroutner/LightRAG))
 - Web search query and HTML to Markdown conversion.
 - Ollama API interface for LLM inference
 
