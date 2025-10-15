@@ -67,7 +67,7 @@ class TelegramController {
       const opts = {
         reply_to_message_id: msg.message_id
       }
-      this.bot.sendMessage(msg.chat.id, 'Sorry, there was an error processing your request. Please try again later.', opts)
+      this.bot.sendMessage(msg.chat.id, `Sorry, there was an error processing your request: ${error.message}. Please try again later.`, opts)
         .catch(err => console.error('Failed to send error message:', err))
     }
   }
