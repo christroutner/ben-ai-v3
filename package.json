@@ -1,6 +1,6 @@
 {
   "name": "ben-ai-v3",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Tech-support chat bot app, named 'Ben'. Uses Telegram, Ollama, web search, and RAG DB.",
   "main": "index.js",
   "type": "module",
