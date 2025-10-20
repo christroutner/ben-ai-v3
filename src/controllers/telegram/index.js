@@ -57,7 +57,7 @@ class TelegramController {
       console.log('parsedMsg: ', parsedMsg)
       console.log(' ')
 
-      const response = await this.useCases.bot.handleIncomingPrompt2({ prompt: parsedMsg, telegramMsg: msg })
+      const response = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
 
       // Try sending with Markdown first, fallback to plain text if it fails
       await this.sendTelegramMessage(msg.chat.id, response, msg.message_id)

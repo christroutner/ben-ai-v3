@@ -31,7 +31,8 @@ class BotUseCases {
       // const { prompt, telegramMsg } = inObj
       const { prompt } = inObj
 
-      const ragResponse = await this.adapters.rag.queryRag(prompt)
+      // const ragResponse = await this.adapters.rag.queryRag(prompt)
+      const ragResponse = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
       // console.log('RAG response:', ragResponse)
 
       const completePrompt = `
@@ -51,7 +52,21 @@ or implied question, then you can ignore the prompt and not respond.
 - If you do not know the answer, then respond that you do not know. Do not make up
 an answer or hallucinate an answer.
 
+- Do not reference the chunks from the RAG Knowledge Base in your response. The user
+can not see the chunks, so it sounds awkward when you reference them. The chunks are
+part of *your* knowledge, so if you need to reference them, use the first person. Do
+not mention the RAG database at all in your response.
+
+## RAG Knowledge Base
 ${ragResponse}
+
+## Task Objective
+
+Your task is to follow the Writing Guidelines above, and use the information from
+the RAG Knowledge Base to answer the prompt from the user.
+
+**Prompt from the user:**
+${prompt}
 `
       console.log('completePrompt: ', completePrompt)
 
