@@ -17,7 +17,7 @@ class LightRAGAdapter {
     this.getChunksFromLightRAG = this.getChunksFromLightRAG.bind(this)
   }
 
-  // This method will query LightRAG and have LightRAG automatically generate 
+  // This method will query LightRAG and have LightRAG automatically generate
   // a response from the LLM.
   async queryLightRAG (prompt) {
     try {
@@ -33,8 +33,6 @@ class LightRAGAdapter {
       })
       // console.log('response.data: ', JSON.stringify(response.data, null, 2))
       // console.log('response.data (shape): ', response.data)
-
-      
 
       return response.data.response
     } catch (err) {
@@ -60,20 +58,20 @@ class LightRAGAdapter {
       // console.log('response.data: ', JSON.stringify(response.data, null, 2))
       // console.log('response.data (shape): ', response.data)
 
-      if(response.data.status !== 'success') {
+      if (response.data.status !== 'success') {
         throw new Error('Error in adapters/lightrag.js/getChunksFromLightRAG()')
       }
 
       let ragResult = ''
-      for(let i=0; i < response.data.data.chunks.length; i++) {
+      for (let i = 0; i < response.data.data.chunks.length; i++) {
         const thisChunk = response.data.data.chunks[i].content
 
         // Generate a source string for the chunk, based on the source file path.
         const source = response.data.data.chunks[i].file_path.replace('/home/trout/llm/ben-training-data/knowledge/shared/', '')
-        
+
         ragResult += `\n\n**Chunk ${i + 1} of ${response.data.data.chunks.length}**\n**Source:** ${source}\n${thisChunk}`
       }
-      
+
       return ragResult
     } catch (err) {
       console.error('Error in adapters/lightrag.js/getChunksFromLightRAG()')
