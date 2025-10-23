@@ -21,6 +21,7 @@ import Wallet from './wallet.adapter.js'
 import OllamaAdapter from './ollama.js'
 import RAGAdapter from './rag.js'
 import LightRAGAdapter from './lightrag.js'
+import ParseJsonAdapter from './parse-json-from-text.js'
 
 class Adapters {
   constructor (localConfig = {}) {
@@ -37,6 +38,7 @@ class Adapters {
     this.ollama = new OllamaAdapter()
     this.rag = new RAGAdapter()
     this.lightrag = new LightRAGAdapter()
+    this.parseJson = new ParseJsonAdapter()
 
     // Get a valid JWT API key and instance bch-js.
     this.fullStackJwt = new FullStackJWT(config)

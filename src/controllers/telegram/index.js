@@ -57,10 +57,42 @@ class TelegramController {
       console.log('parsedMsg: ', parsedMsg)
       console.log(' ')
 
-      const response = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
+      const response1 = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
 
-      // Try sending with Markdown first, fallback to plain text if it fails
-      await this.sendTelegramMessage(msg.chat.id, response, msg.message_id)
+      // Check for hallucination.
+      let i = 0
+      let hallucinationCheckObj = null
+      // Loop until we get a valid hallucination check object or we've tried 3 times.
+      do {
+        const hallucinationCheckResponse = await this.useCases.bot.hallucinationCheck({ response1 })
+        hallucinationCheckObj = this.adapters.parseJson.parseJSONObjectFromText(hallucinationCheckResponse)
+        console.log('hallucinationCheckObj: ', hallucinationCheckObj)
+        i++
+      } while (i < 3 && !hallucinationCheckObj)
+
+      // If the response is hallucinating, or we didn't get a valid
+      // hallucination check object, then we need to collect data
+      // and feed back the criticism to get a new response.
+      if (!hallucinationCheckObj || hallucinationCheckObj.isHallucinating) {
+        // Collect data and feed back the criticism to get a new response.
+        const newResponseInput = {
+          prompt: parsedMsg,
+          lastResponse: response1,
+          hallucinationFeedback: hallucinationCheckObj.critique,
+          pertinentDetails: hallucinationCheckObj.pertinentDetails
+        }
+
+        const response2 = await this.useCases.bot.promptWithFeedback(newResponseInput)
+        // console.log('response2: ', response2)
+
+        // Try sending with Markdown first, fallback to plain text if it fails
+        await this.sendTelegramMessage(msg.chat.id, response2, msg.message_id)
+      } else {
+        // Try sending with Markdown first, fallback to plain text if it fails
+        await this.sendTelegramMessage(msg.chat.id, response1, msg.message_id)
+      }
+
+      return true
     } catch (error) {
       console.error('Error in processMsg:', error)
 

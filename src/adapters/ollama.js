@@ -22,7 +22,7 @@ class OllamaAdapter {
       model: config.ollamaModel,
       messages: [{ role: 'user', content: prompt }]
     })
-    console.log('Ollama response:', response)
+    // console.log('Ollama response:', response)
 
     return response.message.content
   }
