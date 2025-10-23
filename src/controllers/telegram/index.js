@@ -59,38 +59,10 @@ class TelegramController {
 
       const response1 = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
 
-      // Check for hallucination.
-      let i = 0
-      let hallucinationCheckObj = null
-      // Loop until we get a valid hallucination check object or we've tried 3 times.
-      do {
-        const hallucinationCheckResponse = await this.useCases.bot.hallucinationCheck({ response1 })
-        hallucinationCheckObj = this.adapters.parseJson.parseJSONObjectFromText(hallucinationCheckResponse)
-        console.log('hallucinationCheckObj: ', hallucinationCheckObj)
-        i++
-      } while (i < 3 && !hallucinationCheckObj)
+      const refinedResponse = await this.useCases.bot.refineResponse({ prompt: parsedMsg, originalResponse: response1 })
 
-      // If the response is hallucinating, or we didn't get a valid
-      // hallucination check object, then we need to collect data
-      // and feed back the criticism to get a new response.
-      if (!hallucinationCheckObj || hallucinationCheckObj.isHallucinating) {
-        // Collect data and feed back the criticism to get a new response.
-        const newResponseInput = {
-          prompt: parsedMsg,
-          lastResponse: response1,
-          hallucinationFeedback: hallucinationCheckObj.critique,
-          pertinentDetails: hallucinationCheckObj.pertinentDetails
-        }
-
-        const response2 = await this.useCases.bot.promptWithFeedback(newResponseInput)
-        // console.log('response2: ', response2)
-
-        // Try sending with Markdown first, fallback to plain text if it fails
-        await this.sendTelegramMessage(msg.chat.id, response2, msg.message_id)
-      } else {
-        // Try sending with Markdown first, fallback to plain text if it fails
-        await this.sendTelegramMessage(msg.chat.id, response1, msg.message_id)
-      }
+      // Try sending with Markdown first, fallback to plain text if it fails
+      await this.sendTelegramMessage(msg.chat.id, refinedResponse, msg.message_id)
 
       return true
     } catch (error) {

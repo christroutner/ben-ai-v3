@@ -22,6 +22,7 @@ class BotUseCases {
     this.handleIncomingPrompt2 = this.handleIncomingPrompt2.bind(this)
     this.hallucinationCheck = this.hallucinationCheck.bind(this)
     this.promptWithFeedback = this.promptWithFeedback.bind(this)
+    this.refineResponse = this.refineResponse.bind(this)
 
     // State
   }
@@ -99,19 +100,25 @@ ${prompt}
 
   async hallucinationCheck (inObj = {}) {
     try {
-      const { response1 } = inObj
+      const { prompt, response } = inObj
 
-      const ragResponse = await this.adapters.lightrag.getChunksFromLightRAG(response1)
+      const ragResponse = await this.adapters.lightrag.getChunksFromLightRAG(response)
       // console.log('ragResponse: ', ragResponse)
 
       const hallucinationCheckPrompt = `
 Your job is to skeptically review a response from a large language model (LLM). You will be 
-provided with a response from an LLM, and a list of documents from your RAG 
+provided with the original prompt, a response from an LLM, and a list of documents from your RAG 
 knowledge base.
 
 You will need to critically review the response and determine if it is 
 consistent with the information in the documents. You will need to make
-a boolean decision about whether the response is hallucinating or not.
+a boolean decision about whether the response is adequately responding 
+to the prompt and if the LLM is hallucinating or not.
+
+The response does not have to be exhaustive or perfectly accurate, so
+long as it is addressing the user's question. For example, a concise
+response is more desirable than an exhaustive, technical answer to a
+simple question.
 
 If it is hallucinating, then you will need to provide a critique of the 
 response. Your response should be limited to a single paragraph summary,
@@ -122,11 +129,18 @@ You will also need to provide a summary of the pertinent details from the docume
 that are relevant to the response. This will help the LLM understand the context of
 the response and help it correct the hallucinations.
 
+In the critique and pertinent details, do not reference the documents. The LLM
+can not see the same documents as you, so it will confuse the LLM. If there
+is data you want to reference, just re-state the data to the LLM can see the
+data in your response.
 
-The response from the LLM is:
-${response1}
+**The original prompt is:**
+${prompt}
 
-The documents from the RAG knowledge base are:
+**The response from the LLM is:**
+${response}
+
+**The documents from the RAG knowledge base are:**
 ${ragResponse}
 
 Your response should be formatted in a valid JSON block like this:
@@ -142,7 +156,7 @@ Your response should include the valid JSON block and nothing else.
 `
 
       const hallucinationCheckResponse = await this.adapters.ollama.promptLlm(hallucinationCheckPrompt)
-      console.log('hallucinationCheckResponse: ', hallucinationCheckResponse)
+      // console.log('hallucinationCheckResponse: ', hallucinationCheckResponse)
 
       return hallucinationCheckResponse
     } catch (err) {
@@ -191,16 +205,16 @@ mention that you've re-written the response. Do not mention inaccuracies in the
 previous answer. Just take the critique into consideration when formulating a 
 new response.
 
-The question is:
+### The question is:
 ${prompt}
 
-The original answer is:
+### The original answer is:
 ${lastResponse}
 
-The critique of the answer is:
+### The critique of the answer is:
 ${hallucinationFeedback}
 
-The pertinent details from the documents that are relevant to the response:
+### The pertinent details from the documents that are relevant to the response:
 ${pertinentDetails}
 
 ## RAG Knowledge Base
@@ -217,11 +231,83 @@ ${prompt}
       console.log('newPrompt: ', newPrompt)
 
       const response = await this.adapters.ollama.promptLlm(newPrompt)
-      console.log('\nStage 2 Ollama response:\n', response)
+      console.log('\n\n\nStage 2 Ollama response:\n', response)
 
       return response
     } catch (err) {
       console.error('Error in use-cases/bot.js/promptWithFeedback()')
+      throw err
+    }
+  }
+
+  // Loop through a series of hallucination checks and feedback in order to
+  // refine the response for accuracy.
+  async refineResponse (inObj = {}) {
+    try {
+      const { prompt, originalResponse } = inObj
+
+      // Be default, if something goes wrong, the output response is the original response.
+      let outputResponse = originalResponse
+
+      // Loop through the refinement process 3 times. If the response gets
+      // refined before 3 loops, it will exit early.
+      let responseToCheck = originalResponse
+      for (let i = 0; i < 3; i++) {
+        console.log('\n\n\nrefineResponse() i: ', i)
+
+        // Try up to three times to get a valid hallucination check object.
+        let hallucinationCheckObj = null
+        for (let j = 0; j < 3; j++) {
+          console.log('\n\nhallucinationCheck() j: ', j)
+
+          const hallucinationCheckResponse = await this.hallucinationCheck({ prompt, response: responseToCheck })
+          hallucinationCheckObj = this.adapters.parseJson.parseJSONObjectFromText(hallucinationCheckResponse)
+          console.log('hallucinationCheckObj: ', hallucinationCheckObj)
+
+          if (hallucinationCheckObj) {
+            break
+          }
+        }
+
+        // If the response is hallucinating, then we need to collect data
+        // and feed back the criticism to get a new response.
+        if (hallucinationCheckObj) {
+          // Sometimes the isHallucinating property is a string, so we need to convert it to a boolean.
+          let isHallucinating = false
+          if (hallucinationCheckObj.isHallucinating === 'true') {
+            isHallucinating = true
+          } else if (hallucinationCheckObj.isHallucinating === 'false') {
+            isHallucinating = false
+          } else if (hallucinationCheckObj.isHallucinating) {
+            isHallucinating = true
+          }
+          console.log('isHallucinating: ', isHallucinating)
+
+          if (isHallucinating) {
+            // Collect data and feed back the criticism to get a new response.
+            const newResponseInput = {
+              prompt,
+              lastResponse: responseToCheck,
+              hallucinationFeedback: hallucinationCheckObj.critique,
+              pertinentDetails: hallucinationCheckObj.pertinentDetails
+            }
+
+            responseToCheck = await this.promptWithFeedback(newResponseInput)
+            // console.log('\n\nresponseToCheck: ', responseToCheck)
+          } else {
+            // If the hallucination check determines that there is no hallucination,
+            // then return the last refined response.
+            console.log(`No hallucination, returning last refined response. i: ${i}`)
+
+            outputResponse = responseToCheck
+            break
+          }
+        }
+      }
+
+      return outputResponse
+    } catch (err) {
+      console.error('Error in use-cases/bot.js/refineResponse()')
       throw err
     }
   }
