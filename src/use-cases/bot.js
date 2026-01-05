@@ -54,7 +54,7 @@ Here is the original prompt:
 ${prompt}
 `
       const terseResponse = await this.adapters.ollama.promptLlm(tersePrompt)
-      console.log('terseResponse: ', terseResponse)
+      console.log('\n\nterseResponse: ', terseResponse)
 
       // Generate the verbose version of the prompt.
       const verbosePrompt =
@@ -68,7 +68,15 @@ Here is the original prompt:
 ${prompt}
 `
       const verboseResponse = await this.adapters.ollama.promptLlm(verbosePrompt)
-      console.log('verboseResponse: ', verboseResponse)
+      console.log('\n\nverboseResponse: ', verboseResponse)
+
+      // Retrieve the knowledge chunks from LightRAG for the three prompts.
+      const terseChunks = await this.adapters.lightrag.getChunksFromLightRAG(tersePrompt)
+      console.log('\n\nterseChunks: ', terseChunks)
+      const verboseChunks = await this.adapters.lightrag.getChunksFromLightRAG(verbosePrompt)
+      console.log('\n\nverboseChunks: ', verboseChunks)
+      const originalChunks = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
+      console.log('\n\noriginalChunks: ', originalChunks)
 
       return 'test complete'
     } catch (err) {
