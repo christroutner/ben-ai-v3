@@ -88,23 +88,41 @@ ${verboseChunks}
 ${originalChunks}
 `
 
+      // Have the LLM remove duplicates from the combined chunks.
+      const removeDuplicatesPrompt =
+`
+Below is a prompt for an LLM. The prompt was used three different ways to 
+retrieve knowledge chunks from a LightRAG knowledge base.
+Some chunks may be duplicates.
+
+Your task is to remove duplicates from the knowledge chunks. Reproduce the
+chunks faithfully, and do not change the content of the chunks. Simply
+remove the chunks that are duplicates.
+
+Here are the knowledge chunks from the three prompts:
+${combinedChunks}
+`
+      const removeDuplicatesResponse = await this.adapters.ollama.promptLlm(removeDuplicatesPrompt)
+      console.log('\n\nremoveDuplicatesResponse: \n', removeDuplicatesResponse)
+
       // Have the LLM filter the combined chunks.
       const filterChunksPrompt =
 `
 Below is a prompt for an LLM. The prompt was used three different ways to 
 retrieve knowledge chunks from a LightRAG knowledge base.
-Some chunks may be duplicates, or may be irrelevant to the original prompt.
-Your task is to filter the knowledge chunks. Remove duplicates, and 
-determine which chunks are most relevant to the original prompt.
+Some may be irrelevant to the original prompt.
+Your task is to filter the knowledge chunks. 
+Determine which chunks are relevant to the original prompt.
+Remove any chunks that are not relevant to the original prompt.
+Reproduce the chunks faithfully, and do not change the content of the chunks. 
+Simply remove the chunks that not relevant.
 
 Here is the original prompt:
 ${prompt}
 
 Here are the knowledge chunks from the three prompts:
-${combinedChunks}
+${removeDuplicatesPrompt}
 
-Respond in the same style as the knowledge chunks. Use the **Chunk <number> of 
-<total>** format for each chunk in the response.
 `
       const filterChunksResponse = await this.adapters.ollama.promptLlm(filterChunksPrompt)
       console.log('\n\nfilterChunksResponse: \n', filterChunksResponse)
