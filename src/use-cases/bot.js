@@ -29,6 +29,9 @@ class BotUseCases {
 
   // This function is called by the Telegram Controller when a new message is
   // received.
+  // This implementation retrieves knowledge chunks from LightRAG, and 
+  // adds those chunks to a prompt for the LLM. It then returns the response
+  // from the LLM.
   async handleIncomingPrompt (inObj = {}) {
     try {
       // const { prompt, telegramMsg } = inObj
@@ -83,6 +86,8 @@ ${prompt}
     }
   }
 
+  // This older implementation uses LightRAG to query the RAG knowledge base 
+  // AND have it answer the prompt directly, based on it's graph database.
   async handleIncomingPrompt2 (inObj = {}) {
     try {
       const { prompt } = inObj
