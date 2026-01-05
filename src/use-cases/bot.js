@@ -103,10 +103,11 @@ ${prompt}
 Here are the knowledge chunks from the three prompts:
 ${combinedChunks}
 
-Respond in the same style as the knowledge chunks.
+Respond in the same style as the knowledge chunks. Use the **Chunk <number> of 
+<total>** format for each chunk in the response.
 `
       const filterChunksResponse = await this.adapters.ollama.promptLlm(filterChunksPrompt)
-      console.log('\n\nfilterChunksResponse: ', filterChunksResponse)
+      console.log('\n\nfilterChunksResponse: \n', filterChunksResponse)
 
       return 'test complete'
     } catch (err) {
