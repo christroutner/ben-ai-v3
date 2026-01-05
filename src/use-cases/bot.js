@@ -23,13 +23,63 @@ class BotUseCases {
     this.hallucinationCheck = this.hallucinationCheck.bind(this)
     this.promptWithFeedback = this.promptWithFeedback.bind(this)
     this.refineResponse = this.refineResponse.bind(this)
+    this.handleIncomingPrompt3 = this.handleIncomingPrompt3.bind(this)
 
     // State
   }
 
+  // This implementation splits the prompt into three versions:
+  // - The original prompt
+  // - A 'terse' version that is a concise, focused, single sentence version of the prompt.
+  // - A 'verbose' version that is at least a paragram. It a more detailed, technical, and descriptive version of the prompt.
+  //
+  // Each version is used to retrieve knowledge chunks from LightRAG. The chunks are then
+  // filtered by the LLM to determine which chunks are most relevant to the original prompt,
+  // and to remove duplicates.
+  //
+  // A final prompt is built with the refined knowledge chunks, and the final
+  // response is returned.
+  async handleIncomingPrompt3 (inObj = {}) {
+    try {
+      const { prompt } = inObj
+
+      // Generate the terse version of the prompt.
+      const tersePrompt =
+`
+Below is a prompt for an LLM. Your task is to generate a terse version of the 
+prompt. The terse version should be a concise, focused, single sentence version 
+of the prompt.
+
+Here is the original prompt:
+${prompt}
+`
+      const terseResponse = await this.adapters.ollama.promptLlm(tersePrompt)
+      console.log('terseResponse: ', terseResponse)
+
+      // Generate the verbose version of the prompt.
+      const verbosePrompt =
+`
+Below is a prompt for an LLM. Your task is to generate a verbose version of the 
+prompt. The verbose version should be a more detailed, technical, and descriptive 
+version of the prompt. It should be at least a paragraph long, but less than
+five paragraphs long.
+
+Here is the original prompt:
+${prompt}
+`
+      const verboseResponse = await this.adapters.ollama.promptLlm(verbosePrompt)
+      console.log('verboseResponse: ', verboseResponse)
+
+      return 'test complete'
+    } catch (err) {
+      console.error('Error in use-cases/bot.js/handleIncomingPrompt3()')
+      throw err
+    }
+  }
+
   // This function is called by the Telegram Controller when a new message is
   // received.
-  // This implementation retrieves knowledge chunks from LightRAG, and 
+  // This implementation retrieves knowledge chunks from LightRAG, and
   // adds those chunks to a prompt for the LLM. It then returns the response
   // from the LLM.
   async handleIncomingPrompt (inObj = {}) {
@@ -86,7 +136,7 @@ ${prompt}
     }
   }
 
-  // This older implementation uses LightRAG to query the RAG knowledge base 
+  // This older implementation uses LightRAG to query the RAG knowledge base
   // AND have it answer the prompt directly, based on it's graph database.
   async handleIncomingPrompt2 (inObj = {}) {
     try {

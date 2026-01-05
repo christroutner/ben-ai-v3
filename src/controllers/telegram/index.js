@@ -58,7 +58,7 @@ class TelegramController {
       console.log(' ')
 
       // Retrieve knowledge chunks from LightRAG, build a prompt. response1 contains the response from the LLM.
-      const response1 = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
+      const response1 = await this.useCases.bot.handleIncomingPrompt3({ prompt: parsedMsg, telegramMsg: msg })
 
       // Check the response for hallucinations, and retry with feedback, until halucinations stop.
       // const refinedResponse = await this.useCases.bot.refineResponse({ prompt: parsedMsg, originalResponse: response1 })
