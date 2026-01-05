@@ -92,13 +92,16 @@ ${originalChunks}
       const removeDuplicatesPrompt =
 `
 Below is a prompt for an LLM. The prompt was used three different ways to 
-retrieve knowledge chunks from a LightRAG knowledge base.
+retrieve knowledge chunks from a LightRAG knowledge base. Each prompt returned
+10 chunks, or a total of 30 chunks of knowledge.
 Some chunks may be duplicates.
 
 Your task is to remove duplicates from the knowledge chunks. Reproduce the
 chunks faithfully, and do not change the content of the chunks. Simply
 remove the chunks that are duplicates.
 Do not add any commentary or notes in your response.
+The only text you should modify is the chunk numbers, to re-number the chunks, so that they are 
+in a sequential order. Take into account any duplicate chunks that were deleted.
 
 Here are the knowledge chunks from the three prompts:
 ${combinedChunks}
@@ -121,6 +124,9 @@ Do not add any commentary or notes in your response.
 Do not edit the chunks, just filter out the ones that are not relevant. Return 
 the entire chunk unedited, if the chunk is relevant. Judgement should be made
 on the entire chunk, not just parts of it. Do not reword anything.
+The only text you should modify is the chunk numbers, to re-number the chunks, so that they are 
+in a sequential order. While ordering, take into account any chunks that were 
+deleted because they were not relevant.
 
 Here is the original prompt:
 ${prompt}
