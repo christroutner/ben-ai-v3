@@ -118,6 +118,9 @@ Remove any chunks that are not relevant to the original prompt.
 Reproduce the chunks faithfully, and do not change the content of the chunks. 
 Simply remove the chunks that not relevant.
 Do not add any commentary or notes in your response.
+Do not edit the chunks, just filter out the ones that are not relevant. Return 
+the entire chunk unedited, if the chunk is relevant. Judgement should be made
+on the entire chunk, not just parts of it. Do not reword anything.
 
 Here is the original prompt:
 ${prompt}
