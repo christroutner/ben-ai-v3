@@ -109,7 +109,45 @@ Respond in the same style as the knowledge chunks. Use the **Chunk <number> of
       const filterChunksResponse = await this.adapters.ollama.promptLlm(filterChunksPrompt)
       console.log('\n\nfilterChunksResponse: \n', filterChunksResponse)
 
-      return 'test complete'
+      // Build the final prompt with the filtered chunks.
+      const finalPrompt =
+`
+# Overview
+You are a helpful tech-support agent. Your job is to answer technical questions.
+You will be given a list of documents from your RAG knowledge database to help
+answer the question.
+Use your internal knowledge to answer the question, and only use the documents
+when they seem relevant to the question being asked.
+
+Question: ${prompt}
+
+## Writing Guidelines
+- If the question is not related to technology, or if the input is not an explicit
+or implied question, then you can ignore the prompt and not respond.
+
+- If you do not know the answer, then respond that you do not know. Do not make up
+an answer or hallucinate an answer.
+
+- Do not reference the chunks from the RAG Knowledge Base in your response. The user
+can not see the chunks, so it sounds awkward when you reference them. The chunks are
+part of *your* knowledge, so if you need to reference them, use the first person. Do
+not mention the RAG database at all in your response.
+
+## RAG Knowledge Base
+${filterChunksResponse}
+
+## Task Objective
+
+Your task is to follow the Writing Guidelines above, and use the information from
+the RAG Knowledge Base to answer the prompt from the user.
+
+**Prompt from the user:**
+${prompt}
+`
+      const finalResponse = await this.adapters.ollama.promptLlm(finalPrompt)
+      // console.log('\n\nfinalResponse: \n', finalResponse)
+
+      return finalResponse
     } catch (err) {
       console.error('Error in use-cases/bot.js/handleIncomingPrompt3()')
       throw err
@@ -130,7 +168,8 @@ Respond in the same style as the knowledge chunks. Use the **Chunk <number> of
       const ragResponse = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
       // console.log('RAG response:', ragResponse)
 
-      const completePrompt = `
+      const completePrompt =
+`
 # Overview
 You are a helpful tech-support agent. Your job is to answer technical questions.
 You will be given a list of documents from your RAG knowledge database to help
