@@ -78,6 +78,36 @@ ${prompt}
       const originalChunks = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
       console.log('\n\noriginalChunks: ', originalChunks)
 
+      const combinedChunks =
+`
+--- Terse Prompt Knowledge Chunks ---
+${terseChunks}
+--- Verbose Prompt Knowledge Chunks ---
+${verboseChunks}
+--- Original Prompt Knowledge Chunks ---
+${originalChunks}
+`
+
+      // Have the LLM filter the combined chunks.
+      const filterChunksPrompt =
+`
+Below is a prompt for an LLM. The prompt was used three different ways to 
+retrieve knowledge chunks from a LightRAG knowledge base.
+Some chunks may be duplicates, or may be irrelevant to the original prompt.
+Your task is to filter the knowledge chunks. Remove duplicates, and 
+determine which chunks are most relevant to the original prompt.
+
+Here is the original prompt:
+${prompt}
+
+Here are the knowledge chunks from the three prompts:
+${combinedChunks}
+
+Respond in the same style as the knowledge chunks.
+`
+      const filterChunksResponse = await this.adapters.ollama.promptLlm(filterChunksPrompt)
+      console.log('\n\nfilterChunksResponse: ', filterChunksResponse)
+
       return 'test complete'
     } catch (err) {
       console.error('Error in use-cases/bot.js/handleIncomingPrompt3()')
