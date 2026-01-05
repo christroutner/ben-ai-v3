@@ -167,8 +167,10 @@ the RAG Knowledge Base to answer the prompt from the user.
 **Prompt from the user:**
 ${prompt}
 `
+      console.log('\n\nfinalPrompt: \n', finalPrompt)
+
       const finalResponse = await this.adapters.ollama.promptLlm(finalPrompt)
-      // console.log('\n\nfinalResponse: \n', finalResponse)
+      console.log('\n\nfinalResponse: \n', finalResponse)
 
       return finalResponse
     } catch (err) {

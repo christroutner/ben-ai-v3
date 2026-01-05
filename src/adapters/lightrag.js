@@ -53,7 +53,8 @@ class LightRAGAdapter {
 
       const response = await axios.post(url, {
         query: prompt,
-        mode: 'mix'
+        mode: 'mix',
+        chunk_top_k: 10
       })
       // console.log('response.data: ', JSON.stringify(response.data, null, 2))
       // console.log('response.data (shape): ', response.data)
