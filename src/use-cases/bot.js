@@ -23,12 +23,167 @@ class BotUseCases {
     this.hallucinationCheck = this.hallucinationCheck.bind(this)
     this.promptWithFeedback = this.promptWithFeedback.bind(this)
     this.refineResponse = this.refineResponse.bind(this)
+    this.handleIncomingPrompt3 = this.handleIncomingPrompt3.bind(this)
 
     // State
   }
 
+  // This implementation splits the prompt into three versions:
+  // - The original prompt
+  // - A 'terse' version that is a concise, focused, single sentence version of the prompt.
+  // - A 'verbose' version that is at least a paragram. It a more detailed, technical, and descriptive version of the prompt.
+  //
+  // Each version is used to retrieve knowledge chunks from LightRAG. The chunks are then
+  // filtered by the LLM to determine which chunks are most relevant to the original prompt,
+  // and to remove duplicates.
+  //
+  // A final prompt is built with the refined knowledge chunks, and the final
+  // response is returned.
+  async handleIncomingPrompt3 (inObj = {}) {
+    try {
+      const { prompt } = inObj
+
+      // Generate the terse version of the prompt.
+      const tersePrompt =
+`
+Below is a prompt for an LLM. Your task is to generate a terse version of the 
+prompt. The terse version should be a concise, focused, single sentence version 
+of the prompt.
+
+Here is the original prompt:
+${prompt}
+`
+      const terseResponse = await this.adapters.ollama.promptLlm(tersePrompt)
+      console.log('\n\nterseResponse: ', terseResponse)
+
+      // Generate the verbose version of the prompt.
+      const verbosePrompt =
+`
+Below is a prompt for an LLM. Your task is to generate a verbose version of the 
+prompt. The verbose version should be a more detailed, technical, and descriptive 
+version of the prompt. It should be at least a paragraph long, but less than
+five paragraphs long.
+
+Here is the original prompt:
+${prompt}
+`
+      const verboseResponse = await this.adapters.ollama.promptLlm(verbosePrompt)
+      console.log('\n\nverboseResponse: ', verboseResponse)
+
+      // Retrieve the knowledge chunks from LightRAG for the three prompts.
+      const terseChunks = await this.adapters.lightrag.getChunksFromLightRAG(tersePrompt)
+      console.log('\n\nterseChunks: ', terseChunks)
+      const verboseChunks = await this.adapters.lightrag.getChunksFromLightRAG(verbosePrompt)
+      console.log('\n\nverboseChunks: ', verboseChunks)
+      const originalChunks = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
+      console.log('\n\noriginalChunks: ', originalChunks)
+
+      const combinedChunks =
+`
+--- Terse Prompt Knowledge Chunks ---
+${terseChunks}
+--- Verbose Prompt Knowledge Chunks ---
+${verboseChunks}
+--- Original Prompt Knowledge Chunks ---
+${originalChunks}
+`
+
+      // Have the LLM remove duplicates from the combined chunks.
+      const removeDuplicatesPrompt =
+`
+Below is a prompt for an LLM. The prompt was used three different ways to 
+retrieve knowledge chunks from a LightRAG knowledge base.
+Some chunks may be duplicates.
+
+Your task is to remove duplicates from the knowledge chunks. Reproduce the
+chunks faithfully, and do not change the content of the chunks. Simply
+remove the chunks that are duplicates.
+Do not add any commentary or notes in your response.
+
+Here are the knowledge chunks from the three prompts:
+${combinedChunks}
+`
+      const removeDuplicatesResponse = await this.adapters.ollama.promptLlm(removeDuplicatesPrompt)
+      console.log('\n\nremoveDuplicatesResponse: \n', removeDuplicatesResponse)
+
+      // Have the LLM filter the combined chunks.
+      const filterChunksPrompt =
+`
+Below is a prompt for an LLM. The prompt was used three different ways to 
+retrieve knowledge chunks from a LightRAG knowledge base.
+Some may be irrelevant to the original prompt.
+Your task is to filter the knowledge chunks. 
+Determine which chunks are relevant to the original prompt.
+Remove any chunks that are not relevant to the original prompt.
+Reproduce the chunks faithfully, and do not change the content of the chunks. 
+Simply remove the chunks that not relevant.
+Do not add any commentary or notes in your response.
+Do not edit the chunks, just filter out the ones that are not relevant. Return 
+the entire chunk unedited, if the chunk is relevant. Judgement should be made
+on the entire chunk, not just parts of it. Do not reword anything.
+
+Here is the original prompt:
+${prompt}
+
+Here are the knowledge chunks from the three prompts:
+${removeDuplicatesPrompt}
+
+`
+      const filterChunksResponse = await this.adapters.ollama.promptLlm(filterChunksPrompt)
+      console.log('\n\nfilterChunksResponse: \n', filterChunksResponse)
+
+      // Build the final prompt with the filtered chunks.
+      const finalPrompt =
+`
+# Overview
+You are a helpful tech-support agent. Your job is to answer technical questions.
+You will be given a list of documents from your RAG knowledge database to help
+answer the question.
+Use your internal knowledge to answer the question, and only use the documents
+when they seem relevant to the question being asked.
+
+Question: ${prompt}
+
+## Writing Guidelines
+- If the question is not related to technology, or if the input is not an explicit
+or implied question, then you can ignore the prompt and not respond.
+
+- If you do not know the answer, then respond that you do not know. Do not make up
+an answer or hallucinate an answer.
+
+- Do not reference the chunks from the RAG Knowledge Base in your response. The user
+can not see the chunks, so it sounds awkward when you reference them. The chunks are
+part of *your* knowledge, so if you need to reference them, use the first person. Do
+not mention the RAG database at all in your response.
+
+## RAG Knowledge Base
+${filterChunksResponse}
+
+## Task Objective
+
+Your task is to follow the Writing Guidelines above, and use the information from
+the RAG Knowledge Base to answer the prompt from the user.
+
+**Prompt from the user:**
+${prompt}
+`
+      console.log('\n\nfinalPrompt: \n', finalPrompt)
+
+      const finalResponse = await this.adapters.ollama.promptLlm(finalPrompt)
+      console.log('\n\nfinalResponse: \n', finalResponse)
+
+      return finalResponse
+    } catch (err) {
+      console.error('Error in use-cases/bot.js/handleIncomingPrompt3()')
+      throw err
+    }
+  }
+
   // This function is called by the Telegram Controller when a new message is
   // received.
+  // This implementation retrieves knowledge chunks from LightRAG, and
+  // adds those chunks to a prompt for the LLM. It then returns the response
+  // from the LLM.
   async handleIncomingPrompt (inObj = {}) {
     try {
       // const { prompt, telegramMsg } = inObj
@@ -38,7 +193,8 @@ class BotUseCases {
       const ragResponse = await this.adapters.lightrag.getChunksFromLightRAG(prompt)
       // console.log('RAG response:', ragResponse)
 
-      const completePrompt = `
+      const completePrompt =
+`
 # Overview
 You are a helpful tech-support agent. Your job is to answer technical questions.
 You will be given a list of documents from your RAG knowledge database to help
@@ -83,6 +239,8 @@ ${prompt}
     }
   }
 
+  // This older implementation uses LightRAG to query the RAG knowledge base
+  // AND have it answer the prompt directly, based on it's graph database.
   async handleIncomingPrompt2 (inObj = {}) {
     try {
       const { prompt } = inObj

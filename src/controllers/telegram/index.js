@@ -57,9 +57,13 @@ class TelegramController {
       console.log('parsedMsg: ', parsedMsg)
       console.log(' ')
 
-      const response1 = await this.useCases.bot.handleIncomingPrompt({ prompt: parsedMsg, telegramMsg: msg })
+      // Retrieve knowledge chunks from LightRAG, build a prompt. response1 contains the response from the LLM.
+      const response1 = await this.useCases.bot.handleIncomingPrompt3({ prompt: parsedMsg, telegramMsg: msg })
 
-      const refinedResponse = await this.useCases.bot.refineResponse({ prompt: parsedMsg, originalResponse: response1 })
+      // Check the response for hallucinations, and retry with feedback, until halucinations stop.
+      // const refinedResponse = await this.useCases.bot.refineResponse({ prompt: parsedMsg, originalResponse: response1 })
+      // For now, just return the original response.
+      const refinedResponse = response1
 
       // Try sending with Markdown first, fallback to plain text if it fails
       await this.sendTelegramMessage(msg.chat.id, refinedResponse, msg.message_id)
