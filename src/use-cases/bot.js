@@ -98,6 +98,7 @@ Some chunks may be duplicates.
 Your task is to remove duplicates from the knowledge chunks. Reproduce the
 chunks faithfully, and do not change the content of the chunks. Simply
 remove the chunks that are duplicates.
+Do not add any commentary or notes in your response.
 
 Here are the knowledge chunks from the three prompts:
 ${combinedChunks}
@@ -116,6 +117,7 @@ Determine which chunks are relevant to the original prompt.
 Remove any chunks that are not relevant to the original prompt.
 Reproduce the chunks faithfully, and do not change the content of the chunks. 
 Simply remove the chunks that not relevant.
+Do not add any commentary or notes in your response.
 
 Here is the original prompt:
 ${prompt}
